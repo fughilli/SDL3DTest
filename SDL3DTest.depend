@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1397118785 source:c:\projects\coding\c++\sdl\sdl3dtest\main.cpp
+	<SDL2/SDL.h>
+	<SDL2/SDL_image.h>
+	<gl/glew.h>
+	<gl/wglew.h>
+	<cmath>
+	<iostream>
+	<string>
+	<fstream>
+
