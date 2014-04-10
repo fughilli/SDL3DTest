@@ -1,66 +1,4 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <gl/glew.h>
-#include <gl/wglew.h>
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <fstream>
-
-#define DEBUG_LOADING_SHADERS
-
-using namespace std;
-
-const int NUM_QUADS_IN_RING = 10;
-const float RING_RADIUS = 100.0f;
-const float RING_THICKNESS = 40.0f;
-const float PI = 3.1415926535897932384626433832795f;
-const float TWO_PI = PI*2;
-
-const int numvertices = 5;
-const int numindices = 9;
-
-const GLchar* VertexShaderSource =
-{
-    "void main() {\n"\
-    "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"\
-    "gl_Position = ftransform();\n"\
-    "}\n"
-};
-
-const GLchar* FragmentShaderSource =
-{
-    "uniform sampler2D tex;\n"\
-    "void main(){\n"\
-    "vec4 color = texture2D(tex,gl_TexCoord[0].st);\n"\
-    "gl_FragColor = color;\n"\
-    "}\n"
-};
-
-GLfloat vertexlist[numvertices*3] =
-{
-    0, 0, 0,
-    -50, -50, 0,
-    50, -50, 0,
-    50, 50, 0,
-    -50, 50, 0
-};
-
-GLuint vertexindices[numindices] =
-{
-    0,1,2,0,3,4,0,2,3
-};
-
-GLfloat texuvlist[numvertices*2] =
-{
-    0.5f,0.5f,
-    0.0f,0.0f,
-    1.0f,0.0f,
-    1.0f,1.0f,
-    0.0f,1.0f
-};
-
-std::string get_file_contents(const char *filename);
+#include "main.h"
 
 int main( int argc, char* args[])
 {
@@ -124,41 +62,7 @@ int main( int argc, char* args[])
 
     glBindTexture(GL_TEXTURE_2D, triangleTexture);
 
-    GLuint shaderProgram = glCreateProgram();
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-#ifdef DEBUG_LOADING_SHADERS
-    std::string vertexShaderSource = get_file_contents("./shader.vert");
-    std::string fragmentShaderSource = get_file_contents("./shader.frag");
-    GLchar* glVertexShaderSource = new GLchar[vertexShaderSource.size()];
-    GLchar* glFragmentShaderSource = new GLchar[fragmentShaderSource.size()];
-    memcpy(glVertexShaderSource, vertexShaderSource.c_str(), vertexShaderSource.size()+1);
-    memcpy(glFragmentShaderSource, fragmentShaderSource.c_str(), fragmentShaderSource.size()+1);
-
-    glShaderSource(vertexShader, 1, (const GLchar**)(&glVertexShaderSource), NULL);
-    glShaderSource(fragmentShader, 1, (const GLchar**)(&glFragmentShaderSource), NULL);
-
-//    glShaderSource(vertexShader, 1, (const GLchar**)(&(GLchar*)(vertexShaderSource.c_str())), NULL);
-//    glShaderSource(fragmentShader, 1, (const GLchar**)(&(GLchar*)(fragmentShaderSource.c_str())), NULL);
-#else
-    glShaderSource(vertexShader, 1, &VertexShaderSource, NULL);
-    glShaderSource(fragmentShader, 1, &FragmentShaderSource, NULL);
-#endif
-
-    glCompileShader(vertexShader);
-    glCompileShader(fragmentShader);
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    glLinkProgram(shaderProgram);
-
-    glValidateProgram(shaderProgram);
-
-#ifdef DEBUG_LOADING_SHADERS
-    delete[] glVertexShaderSource;
-    delete[] glFragmentShaderSource;
-#endif
+    GLuint shaderProgram = generate_shader_program("./shader.vert", "./shader.frag");
 
     float t = 0.0f;
 
@@ -221,4 +125,36 @@ std::string get_file_contents(const char *filename)
         return(contents);
     }
     return "";
+}
+
+GLuint generate_shader_program(const char *vertexShaderPath, const char *fragmentShaderPath)
+{
+    GLuint shaderProgram = glCreateProgram();
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    std::string vertexShaderSource = get_file_contents(vertexShaderPath);
+    std::string fragmentShaderSource = get_file_contents(fragmentShaderPath);
+    GLchar* glVertexShaderSource = new GLchar[vertexShaderSource.size()];
+    GLchar* glFragmentShaderSource = new GLchar[fragmentShaderSource.size()];
+    memcpy(glVertexShaderSource, vertexShaderSource.c_str(), vertexShaderSource.size()+1);
+    memcpy(glFragmentShaderSource, fragmentShaderSource.c_str(), fragmentShaderSource.size()+1);
+
+    glShaderSource(vertexShader, 1, (const GLchar**)(&glVertexShaderSource), NULL);
+    glShaderSource(fragmentShader, 1, (const GLchar**)(&glFragmentShaderSource), NULL);
+
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+
+    glLinkProgram(shaderProgram);
+
+    glValidateProgram(shaderProgram);
+
+    delete[] glVertexShaderSource;
+    delete[] glFragmentShaderSource;
+
+    return shaderProgram;
 }

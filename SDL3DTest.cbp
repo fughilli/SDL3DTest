@@ -13,11 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-DGLEW_STATIC" />
 				</Compiler>
-				<Linker>
-					<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lglu32 -lglew32 -mwindows" />
-				</Linker>
 				<ExtraCommands>
 					<Add before="cp $(#sdl)/bin/*.dll ./bin/Debug/" />
 					<Add before="mkdir -p ./bin/Debug/Resources/" />
@@ -34,15 +30,18 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lglew32 -mwindows" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-DGLEW_STATIC" />
 		</Compiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lglu32 -mwindows -lglew32" />
+			<Add library="bin\Debug\glew32.lib" />
+		</Linker>
 		<Unit filename="main.cpp" />
+		<Unit filename="main.h" />
 		<Unit filename="shader.frag" />
 		<Unit filename="shader.vert" />
 		<Extensions>
